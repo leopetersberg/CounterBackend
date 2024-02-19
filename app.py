@@ -16,8 +16,13 @@ def increment_counter():
 @app.route('/api/counter/decrement', methods=['POST'])
 def decrement_counter():
     user_id = request.args.get('user_id')
-    db.decr(user_id)
-    return jsonify(success=True)
+    current_value = db.get(user_id)
+    if current_value is None or int(current_value) <= 0:
+        # Counter is at 0 or not set, so we don't decrement
+        return jsonify(success=False, message="Counter cannot go below 0")
+    else:
+        db.decr(user_id)
+        return jsonify(success=True)
 
 @app.route('/api/counter/reset', methods=['POST'])
 def reset_counter():
